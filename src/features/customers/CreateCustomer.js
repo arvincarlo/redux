@@ -1,13 +1,26 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { createCustomer } from "./customerSlice";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function Customer() {
   const [fullName, setFullName] = useState("");
   const [nationalId, setNationalId] = useState("");
 
-  function handleClick() {}
+  const dispatch = useDispatch();
+
+  function handleClick() {
+    if (!fullName || !nationalId) {
+      return toast.error('Please enter a name and a national ID');
+    }
+    
+    dispatch(createCustomer(fullName, nationalId));
+  }
 
   return (
     <div>
+      <ToastContainer />
       <h2>Create new customer</h2>
       <div className="inputs">
         <div>
