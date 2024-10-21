@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { deposit, withdraw, requestLoan, payLoan } from "./accountSlice";
+import { useSelector } from "react-redux";
+
+import { ToastContainer, toast } from "react-toastify";
 
 function AccountOperations() {
   const [depositAmount, setDepositAmount] = useState("");
@@ -7,13 +12,45 @@ function AccountOperations() {
   const [loanPurpose, setLoanPurpose] = useState("");
   const [currency, setCurrency] = useState("USD");
 
-  function handleDeposit() {}
+  const dispatch = useDispatch();
+  const account = useSelector(state => state.account);
 
-  function handleWithdrawal() {}
+  function handleDeposit() {
+    if (!depositAmount) return;
 
-  function handleRequestLoan() {}
+    dispatch(deposit(depositAmount));
+    setDepositAmount("");
+    toast.success("Deposit successful");
+  }
 
-  function handlePayLoan() {}
+  function handleWithdrawal() {
+    if (!withdrawalAmount) return toast.error("Please enter a withdrawal amount");
+
+    if (account.balance === 0 || withdrawalAmount > account.balance) {
+      return toast.error("Insufficient funds available");
+    }
+
+    dispatch(withdraw(withdrawalAmount));
+    setWithdrawalAmount("");
+    toast.success("Withdrawal successful");
+  }
+
+  function handleRequestLoan() {
+    if (!loanAmount || !loanPurpose) return toast.error("Please fill out request loan details.");
+
+    if (account.loan) {
+      return toast.warning("You still have an active loan");
+    }
+
+    dispatch(requestLoan(loanAmount, loanPurpose));
+    setLoanAmount("");
+    setLoanPurpose("");
+    toast.success("Loan successfully added to balance");
+  }
+
+  function handlePayLoan() {
+    dispatch(payLoan());
+  }
 
   return (
     <div>
@@ -66,11 +103,12 @@ function AccountOperations() {
           <button onClick={handleRequestLoan}>Request loan</button>
         </div>
 
-        <div>
-          <span>Pay back $X</span>
+        {account.loan > 0 && <div>
+          <span>Pay back PHP {account.loan}</span>
           <button onClick={handlePayLoan}>Pay loan</button>
-        </div>
+        </div>}
       </div>
+      <ToastContainer position="bottom-right" />
     </div>
   );
 }

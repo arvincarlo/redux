@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div>
-      <h1>Yun Yown Bank App</h1>
+      <h1>🧅 Onion Bank App 💰</h1>
       {fullName === '' ? 
         <>
           <CreateCustomer/>
