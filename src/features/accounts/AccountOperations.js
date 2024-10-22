@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { deposit, withdraw, requestLoan, payLoan } from "./accountSlice";
 import { useSelector } from "react-redux";
-
 import { ToastContainer, toast } from "react-toastify";
 
 function AccountOperations() {
@@ -10,15 +9,15 @@ function AccountOperations() {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [loanAmount, setLoanAmount] = useState("");
   const [loanPurpose, setLoanPurpose] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("PHP");
 
   const dispatch = useDispatch();
-  const account = useSelector(state => state.account);
+  const {balance, loan: currentLoan, isLoading} = useSelector(state => state.account);
 
   function handleDeposit() {
     if (!depositAmount) return;
 
-    dispatch(deposit(depositAmount));
+    dispatch(deposit(depositAmount, currency));
     setDepositAmount("");
     toast.success("Deposit successful");
   }
@@ -26,7 +25,7 @@ function AccountOperations() {
   function handleWithdrawal() {
     if (!withdrawalAmount) return toast.error("Please enter a withdrawal amount");
 
-    if (account.balance === 0 || withdrawalAmount > account.balance) {
+    if (balance === 0 || withdrawalAmount > balance) {
       return toast.error("Insufficient funds available");
     }
 
@@ -38,7 +37,7 @@ function AccountOperations() {
   function handleRequestLoan() {
     if (!loanAmount || !loanPurpose) return toast.error("Please fill out request loan details.");
 
-    if (account.loan) {
+    if (currentLoan) {
       return toast.warning("You still have an active loan");
     }
 
@@ -67,12 +66,21 @@ function AccountOperations() {
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
           >
+            <option value="PHP">Philippine Peso</option>
             <option value="USD">US Dollar</option>
             <option value="EUR">Euro</option>
             <option value="GBP">British Pound</option>
+            <option value="AUD">Australian Dollar</option>
+            <option value="SGD">Singaporean Dollar</option>
+            <option value="MYR">Malaysian Ringgit</option>
+            <option value="CNY">Renminbi</option>
+            <option value="THB">Thailand Baht</option>
+            <option value="IDR">Indonesian Rupiah</option>
+            <option value="KRW">Korean Won</option>
+            <option value="INR">Indian Rupee</option>
           </select>
 
-          <button onClick={handleDeposit}>Deposit {depositAmount}</button>
+          <button onClick={handleDeposit} disabled={isLoading}>{isLoading ? 'Converting...' : `Deposit ${depositAmount}`}</button>
         </div>
 
         <div>
@@ -103,8 +111,8 @@ function AccountOperations() {
           <button onClick={handleRequestLoan}>Request loan</button>
         </div>
 
-        {account.loan > 0 && <div>
-          <span>Pay back PHP {account.loan}</span>
+        {currentLoan > 0 && <div>
+          <span>Pay back PHP {currentLoan}</span>
           <button onClick={handlePayLoan}>Pay loan</button>
         </div>}
       </div>
