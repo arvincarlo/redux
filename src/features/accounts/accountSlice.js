@@ -46,7 +46,7 @@ export default function accountReducer(state = initialStateAccount, action) {
 
 
 export function deposit(amount, currency) {
-    
+    console.log(currency);
     if (currency === "PHP") {
         return { type: "account/deposit", payload: amount }
     }

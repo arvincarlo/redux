@@ -19,6 +19,7 @@ function AccountOperations() {
 
     dispatch(deposit(depositAmount, currency));
     setDepositAmount("");
+    setCurrency("PHP");
     toast.success("Deposit successful");
   }
 
