@@ -1,10 +1,10 @@
 import { useSelector } from "react-redux";
 
 function Customer() {
-  const customer = useSelector(store => store.customer.fullName);
+  const {fullName, nationalID, createdAt} = useSelector(store => store.customer);
+  console.log(createdAt);
 
-
-  return <h2>👋 Welcome, {customer}</h2>;
+  return <h2>👋 Welcome, {fullName}, {nationalID}, {createdAt}</h2>;
 }
 
 export default Customer;

@@ -16,6 +16,7 @@ const accountSlice = createSlice({
     reducers: {
         deposit(state, action) {
             state.balance += action.payload;
+            state.isLoading = false;
         },
         withdraw(state, action) {
             state.balance -= action.payload;
@@ -34,13 +35,44 @@ const accountSlice = createSlice({
                 state.balance += action.payload.amount;
             }
         },
-        payLoan(state, action) {
+        payLoan(state) {
             state.balance -= state.loan;
             state.loan = 0;
             state.loanPurpose = "";
+        },
+        convertingCurrency(state) {
+            state.isLoading = true;
         }
     }
 });
 
 export default accountSlice.reducer;
-export const {deposit, withdraw, requestLoan, payLoan} = accountSlice.actions;
+export const {withdraw, requestLoan, payLoan} = accountSlice.actions;
+
+// Async action creator for depositing money in a different currency
+export function deposit(amount, currency) {
+    if (currency === "PHP") {
+        return { type: "account/deposit", payload: amount }
+    }
+
+    return async function(dispatch, getState) {
+        // Set isLoading to true
+        dispatch({type: "account/convertingCurrency"})
+
+        // API Call and convert the currency to PHP 
+        // https://${host}/latest?amount=10&from=GBP&to=USD
+        const response = await fetch(`https://api.frankfurter.app/latest?amount=${amount}&from=${currency}&to=PHP`);
+        const data = await response.json();
+        const converted = data.rates.PHP;
+        
+        console.log(`${amount} ${currency} is equivalent to (${converted}) Pesos.`);
+        
+        // return action
+        dispatch(
+            {
+                type: "account/deposit",
+                payload: converted
+            }
+        );
+    }
+}
